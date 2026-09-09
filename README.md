@@ -1,64 +1,51 @@
-# Python-Template (Classroom 50)
+# LU07.A06 - Unpure wird pure
 
-Vorlage für die Programmier-Aufgaben. Bewertet wird mit
-[pygrader50](https://github.com/BZZ-Commons/pygrader50) über Classroom 50.
+Modul 323, LU07 Refactoring · Kompetenzfeld **D1I**
 
-## Inhalt
+`main.py` enthält eine kleine Lagerverwaltung mit globalem Zustand. Die Funktionen
+rechnen, verändern den Zustand und geben nebenbei etwas aus — alles gleichzeitig.
+Ihre Aufgabe ist es, daraus einen **funktionalen Kern** und eine **dünne Schale**
+zu machen.
 
-| Datei | Zweck |
-|---|---|
-| `main.py` | Startcode |
-| `main_test.py` | pytest-Fälle |
-| `requirements.txt` | Pins für die lokale Entwicklung |
-| `.python-version` | Python-Version (muss zu `runtime.python` in `assignments.json` passen) |
-| `.gitignore` | schliesst PyCharm-Einstellungen und `.venv` aus |
-| `.github/autograding/` | Bewertungs-Konfiguration, siehe unten |
-| `.github/workflows/copyissues.yml` | kopiert Issues aus einem Quell-Repo, manueller Start |
-| `_run_pylint.py` | lässt die Lernenden pylint lokal mit derselben Konfiguration laufen |
+## Ausgangslage
+
+Führen Sie zuerst `pytest` aus. Sieben Tests sind rot. Das ist Absicht: Die Tests
+sind hier die Spezifikation. Zwei davon lohnen sich genauer anzuschauen:
+
+* `test_lauf_ist_wiederholbar` — zwei Durchläufe liefern verschiedene Ergebnisse,
+  weil der globale Zustand zwischen den Aufrufen hängen bleibt.
+* `test_lauf_ausgabe` — schlägt fehl, sobald vorher ein anderer Test gelaufen ist.
+  Genau das meint «Tests hängen voneinander ab».
+
+## Zu implementieren
+
+```python
+mit_einlagerung(bestand, artikel, menge) -> dict
+mit_entnahme(bestand, artikel, menge)    -> (dict, bool)
+```
+
+Beide Funktionen sind **pure**:
+
+* Sie verändern `bestand` nicht, sondern geben einen neuen zurück.
+* Sie geben nichts auf der Konsole aus.
+* Derselbe Aufruf liefert immer dasselbe Ergebnis.
+
+`lauf()` ist die Schale. Dort — und nur dort — leben Zustand, Protokoll und
+`print`. Am Schluss existieren die globalen Variablen `lager` und `protokoll`
+nicht mehr; `einlagern` und `entnehmen` in ihrer alten Form auch nicht.
+
+## Regeln
+
+* `main_test.py` wird **nicht** verändert.
+* Die Rückgabewerte und die Ausgabe von `lauf()` bleiben exakt gleich.
+* Kein `global` im fertigen Code.
 
 ## Bewertung
 
-Classroom 50 legt beim Annehmen der Aufgabe `.classroom50.yaml` und
-`.github/workflows/autograde.yaml` im Studi-Repo an. Beide gehören **nicht** ins
-Template. Bei jedem Push startet der Runner den Klassen-Default-Autograder aus
-dem Config-Repo, der `pygrader50` installiert und im Checkout ausführt.
-
-pygrader50 liest drei Dateien aus `.github/autograding/`:
-
-### `unittests.json`
-
-Ein Eintrag pro pytest-Fall. `function` ist der Name der Testfunktion in
-`main_test.py`, `points` sind ganze Zahlen.
-
-```json
-[
-  {
-    "name": "test",
-    "function": "test",
-    "timeout": 10,
-    "points": 1
-  }
-]
-```
-
-### `lint.json`
-
-```json
-{
-  "files": ["main.py"],
-  "ignore": [],
-  "max": 5
-}
-```
-
-`files` bestimmt, was gelintet wird; ist die Liste leer, sind es alle `*.py` im
-Wurzelverzeichnis ausser den `ignore`-Mustern. `max` sind die Lint-Punkte:
-vergeben wird `pylint-Note / 10 * max`, nach unten auf 0 begrenzt.
-
-### `pylintrc`
-
-pylint-Konfiguration. Die `evaluation`-Formel darin entscheidet, wie stark
-Meldungen die Note drücken.
+| Teil | Punkte |
+|---|---|
+| Tests (`main_test.py`) | 14 |
+| pylint (`main.py`) | 5 |
 
 ## Lokal prüfen
 
@@ -67,25 +54,12 @@ python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
-pytest                           # dieselben Testfälle wie im Bewertungslauf
-python _run_pylint.py            # pylint mit lint.json und pylintrc
+pytest
+python _run_pylint.py
 ```
 
-`_run_pylint.py` liest `.github/autograding/lint.json` und lintet die dort
-genannten Dateien mit `.github/autograding/pylintrc` — dieselbe Auswahl und
-dieselbe Konfiguration wie die Bewertung. Es rechnet die pylint-Note aber nicht
-in Punkte um; das macht erst pygrader50 mit `Note / 10 * max`.
+## Leitfragen für die Reflexion
 
-## Neue Aufgabe ableiten
-
-1. Repo aus diesem Template erzeugen, in der Organisation `templates-python`.
-2. `main.py`, `main_test.py` und `README.md` durch die Aufgabe ersetzen.
-3. `unittests.json` auf die echten Testfunktionen und Punkte setzen.
-4. `lint.json` → `files` auf die zu lintenden Dateien, `max` auf die Lint-Punkte.
-5. Zusätzliche Pakete in `requirements.txt` ergänzen — nicht die, welche die
-   Lernenden selbst eintragen sollen (z. B. Flask).
-6. Aufgabe in `assignments.json` des Config-Repos eintragen.
-
-`requirements.txt` wird im Bewertungslauf **nicht** installiert; pygrader50
-bringt pytest und pylint in gepinnter Version selbst mit. Die Datei ist für die
-lokale Entwicklung da, deshalb müssen die Pins zur Engine passen.
+* Wie gibt eine Funktion gleichzeitig den neuen Bestand und «hat geklappt» zurück?
+* Gehört das Protokoll in den Kern oder in die Schale? Warum?
+* Was wird an der neuen Fassung einfacher zu testen als vorher?

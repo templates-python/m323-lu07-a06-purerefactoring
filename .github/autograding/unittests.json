@@ -1,8 +1,68 @@
 [
   {
-    "name": "test",
-    "function": "test",
+    "name": "Ablauf liefert Bestand und Protokoll",
+    "function": "test_lauf_ergebnis",
     "timeout": 10,
     "points": 1
+  },
+  {
+    "name": "Ablauf ist wiederholbar",
+    "function": "test_lauf_ist_wiederholbar",
+    "timeout": 10,
+    "points": 2
+  },
+  {
+    "name": "Ausgabe unveraendert",
+    "function": "test_lauf_ausgabe",
+    "timeout": 10,
+    "points": 1
+  },
+  {
+    "name": "Einlagerung neuer Artikel",
+    "function": "test_einlagerung_neuer_artikel",
+    "timeout": 10,
+    "points": 1
+  },
+  {
+    "name": "Einlagerung bestehender Artikel",
+    "function": "test_einlagerung_bestehender_artikel",
+    "timeout": 10,
+    "points": 1
+  },
+  {
+    "name": "Einlagerung ohne Seiteneffekt",
+    "function": "test_einlagerung_ohne_seiteneffekt",
+    "timeout": 10,
+    "points": 2
+  },
+  {
+    "name": "Entnahme erfolgreich",
+    "function": "test_entnahme_erfolgreich",
+    "timeout": 10,
+    "points": 1
+  },
+  {
+    "name": "Entnahme bei zu wenig Bestand",
+    "function": "test_entnahme_zu_wenig_bestand",
+    "timeout": 10,
+    "points": 1
+  },
+  {
+    "name": "Kern ist deterministisch",
+    "function": "test_kern_ist_deterministisch",
+    "timeout": 10,
+    "points": 1
+  },
+  {
+    "name": "Kern gibt nichts aus",
+    "function": "test_kern_gibt_nichts_aus",
+    "timeout": 10,
+    "points": 1
+  },
+  {
+    "name": "Kein globaler Zustand",
+    "function": "test_kein_globaler_zustand",
+    "timeout": 10,
+    "points": 2
   }
 ]
