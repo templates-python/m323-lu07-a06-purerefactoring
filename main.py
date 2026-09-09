@@ -1,88 +1,67 @@
-"""LU07.A06 - Unpure wird pure.
+"""LU07.A06 - Loesung: funktionaler Kern und duenne Schale.
 
-Eine kleine Lagerverwaltung mit globalem Zustand. Die Funktionen rechnen,
-veraendern den Zustand und geben nebenbei etwas aus - alles gleichzeitig.
-
-Ihre Aufgabe: einen pure funktionalen Kern bauen und den Zustand in eine
-duenne Schale verlagern. Die Vorgaben stehen im README.
+Der Kern (mit_einlagerung, mit_entnahme) ist pure: gleiche Eingabe, gleiches
+Ergebnis, keine Mutation der Argumente, keine Ausgabe.
+Zustand und Ausgabe leben ausschliesslich in der Schale (lauf).
 """
-
-lager = {}
-protokoll = []
-
-
-def einlagern(artikel, menge):
-    """
-    Legt Ware ins Lager und protokolliert den Vorgang.
-
-    :param artikel: Bezeichnung des Artikels
-    :param menge: eingelagerte Menge
-    :return: None
-    """
-    global lager
-    if artikel in lager:
-        lager[artikel] += menge
-    else:
-        lager[artikel] = menge
-    protokoll.append(f'+{menge} {artikel}')
-    print(f'{artikel}: {lager[artikel]}')
-
-
-def entnehmen(artikel, menge):
-    """
-    Entnimmt Ware aus dem Lager, sofern genug vorhanden ist.
-
-    :param artikel: Bezeichnung des Artikels
-    :param menge: gewuenschte Menge
-    :return: True bei Erfolg, sonst False
-    """
-    global lager
-    if lager.get(artikel, 0) < menge:
-        print('zu wenig Bestand')
-        return False
-    lager[artikel] -= menge
-    protokoll.append(f'-{menge} {artikel}')
-    return True
 
 
 def mit_einlagerung(bestand, artikel, menge):
     """
-    TODO: Liefert einen NEUEN Bestand mit der zusaetzlichen Menge.
-
-    Diese Funktion darf `bestand` nicht veraendern und nichts ausgeben.
+    Liefert einen neuen Bestand mit der zusaetzlichen Menge.
 
     :param bestand: der bisherige Bestand als dict
     :param artikel: Bezeichnung des Artikels
     :param menge: einzulagernde Menge
     :return: der neue Bestand als dict
     """
+    return {**bestand, artikel: bestand.get(artikel, 0) + menge}
 
 
 def mit_entnahme(bestand, artikel, menge):
     """
-    TODO: Liefert (neuer Bestand, erfolgreich?) als Tuple.
-
-    Bei zu wenig Bestand bleibt der Bestand unveraendert und der zweite
-    Wert ist False. Diese Funktion darf nichts ausgeben.
+    Liefert den neuen Bestand und ob die Entnahme moeglich war.
 
     :param bestand: der bisherige Bestand als dict
     :param artikel: Bezeichnung des Artikels
     :param menge: gewuenschte Menge
     :return: Tuple aus neuem Bestand und Erfolgskennzeichen
     """
+    if bestand.get(artikel, 0) < menge:
+        return bestand, False
+    return {**bestand, artikel: bestand[artikel] - menge}, True
 
 
 def lauf():
     """
     Fuehrt den Beispielablauf aus und gibt Bestand und Protokoll zurueck.
 
+    Diese Funktion ist die Schale: hier leben Zustand und Ausgabe.
+
     :return: Tuple aus Bestand und Protokoll
     """
-    einlagern('maus', 5)
-    einlagern('maus', 3)
-    entnehmen('maus', 2)
-    entnehmen('maus', 99)
-    return lager, protokoll
+    bestand = {}
+    protokoll = []
+
+    bestand = mit_einlagerung(bestand, 'maus', 5)
+    protokoll.append('+5 maus')
+    menge = bestand['maus']
+    print(f'maus: {menge}')
+
+    bestand = mit_einlagerung(bestand, 'maus', 3)
+    protokoll.append('+3 maus')
+    menge = bestand['maus']
+    print(f'maus: {menge}')
+
+    bestand, erfolgreich = mit_entnahme(bestand, 'maus', 2)
+    if erfolgreich:
+        protokoll.append('-2 maus')
+
+    bestand, erfolgreich = mit_entnahme(bestand, 'maus', 99)
+    if not erfolgreich:
+        print('zu wenig Bestand')
+
+    return bestand, protokoll
 
 
 if __name__ == '__main__':
